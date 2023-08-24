@@ -20,8 +20,8 @@ HAARCASCADE_PATH = "haarcascade_frontalface_alt2.xml"
 
 LBF_MODEL_PATH = "lbfmodel.yaml"
 
-CHARACTER_IMAGE_PATH_MOVING = "images/boo.jpg"
-CHARACTER_IMAGE_PATH_HIDING = "images/boo-hiding.jpg"
+CHARACTER_IMAGE_PATH_MOVING = "images/boo-transparent.png"
+CHARACTER_IMAGE_PATH_HIDING = "images/boo-hiding-transparent.png"
 # CHARACTER_IMAGE_PATH_MOVING = "images/king-boo.jpg"
 # CHARACTER_IMAGE_PATH_HIDING = "images/king-boo-hiding-2.jpg"
 
@@ -43,13 +43,34 @@ def resize_image(image, width, height):
     return cv2.resize(image, (width, height)) 
 
 
-def overlay_image(background, foreground, overlay_position_x, overlay_position_y):
+def overlay_image_old(background, foreground, overlay_position_x, overlay_position_y):
+    # This just pastes the image in, no alpha (and doesn't handle the image hitting the corners)
     # TODO: transparency? https://stackoverflow.com/a/41335241
     foreground_width = foreground.shape[1]
     foreground_height = foreground.shape[0]
     overlay_end_x = overlay_position_x + foreground_width
     overlay_end_y = overlay_position_y + foreground_height
     background[overlay_position_y:overlay_end_y, overlay_position_x:overlay_end_x,:] = foreground
+    return background
+
+
+def overlay_image(background, foreground, overlay_position_x, overlay_position_y, alpha=1):
+    # https://www.geeksforgeeks.org/transparent-overlays-with-python-opencv/
+    overlay_image = foreground
+    h, w = overlay_image.shape[:2]
+    
+    # Create a new numpy array
+    shapes = numpy.zeros_like(background, numpy.uint8)
+    
+    # Put the overlay at the bottom-right corner
+    #shapes[background.shape[0]-h:background.shape[0], background.shape[1]-w:background.shape[1]] = overlay_image
+    shapes[overlay_position_y:overlay_position_y+h, overlay_position_x:overlay_position_x+w] = overlay_image
+
+    # Change this into bool to use it as mask
+    mask = shapes.astype(bool)
+
+    # Create the overlay
+    background[mask] = cv2.addWeighted(background, 1 - alpha, shapes, alpha, 0)[mask]
     return background
 
 
@@ -91,12 +112,15 @@ while True:
     else:
         character_image = character_image_moving
 
-    if frames_advanced >= 175:
+    alpha = 1
+    if frames_advanced > 150:
+        alpha = max(0, 1 - ((frames_advanced - 150) / 25))
+    if frames_advanced >= 190:
         # Reset back to the start after it reaches maximum size
         frames_advanced = 0
 
-    character_size_multiplier = 1 + min(4.5, frames_advanced * 0.02)
-    print('aaa', frames_advanced, character_size_multiplier)
+    character_size_multiplier = 1 + min(3.5, frames_advanced * 0.02)
+    print('AAA', frames_advanced, character_size_multiplier)
     character_width = int(CHARACTER_STARTING_WIDTH * character_size_multiplier)
     character_height = int(CHARACTER_STARTING_HEIGHT * character_size_multiplier)
 
@@ -111,6 +135,7 @@ while True:
         resized_character_image,
         int(CHARACTER_STARTING_POSITION_X - (character_width / 2)),
         int(CHARACTER_STARTING_POSITION_Y - (character_height / 2)),
+        alpha=alpha,
     )
     cv2.imshow('frame', frame_with_overlay)
 
