@@ -6,6 +6,7 @@ import cv2
 import matplotlib.pyplot as plot
 import math
 import numpy
+from playsound import playsound
 
 
 # IMAGE_PATH = "image.jpg"
@@ -25,6 +26,8 @@ CHARACTER_IMAGE_PATH_HIDING = "images/boo-hiding-transparent.png"
 # CHARACTER_IMAGE_PATH_MOVING = "images/king-boo.jpg"
 # CHARACTER_IMAGE_PATH_HIDING = "images/king-boo-hiding-2.jpg"
 
+LAUGH_SOUND = "sounds/boo-laugh.mp3"
+
 CHARACTER_STARTING_WIDTH = 100
 CHARACTER_STARTING_HEIGHT = 100
 CHARACTER_STARTING_POSITION_X = 300
@@ -43,7 +46,7 @@ def resize_image(image, width, height):
     return cv2.resize(image, (width, height)) 
 
 
-def overlay_image_old(background, foreground, overlay_position_x, overlay_position_y):
+def overlay_image_old(background, foreground, overlay_position_x, overlay_position_y, alpha):
     # This just pastes the image in, no alpha (and doesn't handle the image hitting the corners)
     # TODO: transparency? https://stackoverflow.com/a/41335241
     foreground_width = foreground.shape[1]
@@ -115,12 +118,13 @@ while True:
     alpha = 1
     if frames_advanced > 150:
         alpha = max(0, 1 - ((frames_advanced - 150) / 25))
+    if frames_advanced == 160:
+        playsound(LAUGH_SOUND, False)
     if frames_advanced >= 190:
         # Reset back to the start after it reaches maximum size
         frames_advanced = 0
 
     character_size_multiplier = 1 + min(3.5, frames_advanced * 0.02)
-    print('AAA', frames_advanced, character_size_multiplier)
     character_width = int(CHARACTER_STARTING_WIDTH * character_size_multiplier)
     character_height = int(CHARACTER_STARTING_HEIGHT * character_size_multiplier)
 

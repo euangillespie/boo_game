@@ -15,7 +15,8 @@ sudo apt-get install python3-tk
 virtualenv venv
 ./venv/bin/pip install opencv-python
 ./venv/bin/pip install opencv-contrib-python
-./venv/bin/pip install matplotlib
+./venv/bin/pip install playsound
+# ./venv/bin/pip install matplotlib
 # ./venv/bin/pip install numpy
 # ./venv/bin/pip install scipy
 # ./venv/bin/pip install scikit-image
@@ -31,6 +32,8 @@ and put it in haarcascade_frontalface_alt2.xml
 
 Download https://github.com/kurnianggoro/GSOC2017/raw/master/data/lbfmodel.yaml
 and put it in lbfmodel.yaml
+
+Boo laugh sound from http://soundfxcenter.com/video-games/super-mario-64/8d82b5_SM64_Boo_Laugh_Sound_Effect.mp3
 
 Running ----
 ./venv/bin/python boo_game.py
