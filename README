@@ -1,11 +1,6 @@
-
-Research
-https://medium.com/analytics-vidhya/facial-landmarks-and-face-detection-in-python-with-opencv-73979391f30e
-https://learnopencv.com/facemark-facial-landmark-detection-using-opencv/
-https://pyimagesearch.com/2017/04/10/detect-eyes-nose-lips-jaw-dlib-opencv-python/
+Simple OpenCV-based game, where a Boo from Mario is displayed on your webcam footage. It advances when it's not being looked at, and  stops and hides when it's looked at. When it reaches the screen, it fades and plays a sound, and the game starts again.
 
 Setup ---
-
 
 sudo apt-get install build-essential cmake
 sudo apt-get install libgtk-3-dev
@@ -16,24 +11,20 @@ virtualenv venv
 ./venv/bin/pip install opencv-python
 ./venv/bin/pip install opencv-contrib-python
 ./venv/bin/pip install playsound
-# ./venv/bin/pip install matplotlib
-# ./venv/bin/pip install numpy
-# ./venv/bin/pip install scipy
-# ./venv/bin/pip install scikit-image
-# ./venv/bin/pip install dlib
-
-Testing setup ----
-./venv/bin/python
-# import dlib
-import cv2
 
 Download raw.githubusercontent.com_opencv_opencv_master_data_haarcascades_haarcascade_frontalface_alt2.xml
 and put it in haarcascade_frontalface_alt2.xml
 
-Download https://github.com/kurnianggoro/GSOC2017/raw/master/data/lbfmodel.yaml
-and put it in lbfmodel.yaml
+Download boo laugh sound from http://soundfxcenter.com/video-games/super-mario-64/8d82b5_SM64_Boo_Laugh_Sound_Effect.mp3 , put it in sounds/boo-laugh.mp3
 
-Boo laugh sound from http://soundfxcenter.com/video-games/super-mario-64/8d82b5_SM64_Boo_Laugh_Sound_Effect.mp3
+Download a couple of images for the boo - one advancing, one hiding - and ensure they have transparent backgrounds. Put them in images/boo-transparent.png and images/boo-hiding-transparent.png.
 
 Running ----
 ./venv/bin/python boo_game.py
+
+
+
+Research ---
+https://medium.com/analytics-vidhya/facial-landmarks-and-face-detection-in-python-with-opencv-73979391f30e
+https://learnopencv.com/facemark-facial-landmark-detection-using-opencv/
+https://pyimagesearch.com/2017/04/10/detect-eyes-nose-lips-jaw-dlib-opencv-python/

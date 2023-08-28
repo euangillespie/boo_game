@@ -9,22 +9,10 @@ import numpy
 from playsound import playsound
 
 
-# IMAGE_PATH = "image.jpg"
-# IMAGE_PATH = "image-hiding.jpg" # This one detects a face on my knuckle
-# IMAGE_PATH = "image-hiding-2.jpg"
-# IMAGE_PATH = "image-hiding-3.jpg"
-# IMAGE_PATH = "image-noone.jpg"
-# IMAGE_PATH = "image-looking-away.jpg"
-
-
 HAARCASCADE_PATH = "haarcascade_frontalface_alt2.xml"
-
-LBF_MODEL_PATH = "lbfmodel.yaml"
 
 CHARACTER_IMAGE_PATH_MOVING = "images/boo-transparent.png"
 CHARACTER_IMAGE_PATH_HIDING = "images/boo-hiding-transparent.png"
-# CHARACTER_IMAGE_PATH_MOVING = "images/king-boo.jpg"
-# CHARACTER_IMAGE_PATH_HIDING = "images/king-boo-hiding-2.jpg"
 
 LAUGH_SOUND = "sounds/boo-laugh.mp3"
 
@@ -46,27 +34,17 @@ def resize_image(image, width, height):
     return cv2.resize(image, (width, height)) 
 
 
-def overlay_image_old(background, foreground, overlay_position_x, overlay_position_y, alpha):
-    # This just pastes the image in, no alpha (and doesn't handle the image hitting the corners)
-    # TODO: transparency? https://stackoverflow.com/a/41335241
-    foreground_width = foreground.shape[1]
-    foreground_height = foreground.shape[0]
-    overlay_end_x = overlay_position_x + foreground_width
-    overlay_end_y = overlay_position_y + foreground_height
-    background[overlay_position_y:overlay_end_y, overlay_position_x:overlay_end_x,:] = foreground
-    return background
-
-
 def overlay_image(background, foreground, overlay_position_x, overlay_position_y, alpha=1):
-    # https://www.geeksforgeeks.org/transparent-overlays-with-python-opencv/
+    # Based on https://www.geeksforgeeks.org/transparent-overlays-with-python-opencv/
+    # This is pretty artifact-y with the images I've got. Something based on
+    # https://github.com/opencv/opencv/issues/20780 would probably do better.
     overlay_image = foreground
     h, w = overlay_image.shape[:2]
     
     # Create a new numpy array
     shapes = numpy.zeros_like(background, numpy.uint8)
     
-    # Put the overlay at the bottom-right corner
-    #shapes[background.shape[0]-h:background.shape[0], background.shape[1]-w:background.shape[1]] = overlay_image
+    # Put the overlay in the desired position
     shapes[overlay_position_y:overlay_position_y+h, overlay_position_x:overlay_position_x+w] = overlay_image
 
     # Change this into bool to use it as mask
@@ -108,6 +86,7 @@ while True:
         else:
             if all(previous_n_frame_states):
                 is_hiding = True
+                # Send the boo back slightly each time it hides.
                 frames_advanced = max(0, frames_advanced - 30)
 
     if is_hiding:
@@ -117,11 +96,13 @@ while True:
 
     alpha = 1
     if frames_advanced > 150:
+        # Start fading when the boo gets close.
         alpha = max(0, 1 - ((frames_advanced - 150) / 25))
     if frames_advanced == 160:
+        # Mid-way through fading, play the sound.
         playsound(LAUGH_SOUND, False)
     if frames_advanced >= 190:
-        # Reset back to the start after it reaches maximum size
+        # Reset back to the start after it reaches maximum size and finishes fading.
         frames_advanced = 0
 
     character_size_multiplier = 1 + min(3.5, frames_advanced * 0.02)
@@ -148,42 +129,3 @@ while True:
 
 capture.release()
 cv2.destroyAllWindows()
-
-# image = cv2.imread(IMAGE_PATH)
-
-# faces = detector.detectMultiScale(image)
-# print("Faces:\n", faces)
-
-# if len(faces) and faces.any():
-#     # We've found the faces, now find facial geometry to see if there's eyes.
-#     # The face detector will detect e.g. backs of heads, so we do need to
-#     # check for features.
-#     landmark_detector  = cv2.face.createFacemarkLBF()
-#     landmark_detector.loadModel(LBF_MODEL_PATH)
-
-#     xxx, landmarks = landmark_detector.fit(image, faces)
-#     # TODO: What is this matching? It's seem to be basically anything.
-#     # print(xxx, landmarks)
-
-#     # Testing: display faces
-#     # for face in faces:
-#     #     # save the coordinates in x, y, w, d variables
-#     #     (x,y,w,d) = face
-#     #     # Draw a white coloured rectangle around each face using the face's coordinates
-#     #     # on the "image" with the thickness of 2 
-#     #     cv2.rectangle(image,(x,y),(x+w, y+d),(255, 255, 255), 2)
-
-#     # Testing: display features
-#     for landmark in landmarks:
-#         for x,y in landmark[0]:
-#             # display landmarks on "image"
-#             # with white colour in BGR and thickness 1
-#             cv2.circle(image, (int(x),int(y)), 1, (255, 255, 255), 1)
-
-#     print("DISPLAYING")
-#     plot.axis("off")
-#     plot.imshow(image)
-#     plot.title('Face Detection')
-#     plot.show()
-# else:
-#     print("No faces")
